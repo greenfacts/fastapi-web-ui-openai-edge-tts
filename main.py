@@ -1,3 +1,4 @@
+import re  # Import the regular expression module
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -12,14 +13,22 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-OPENAI_EDGE_TTS_URL = os.getenv("OPENAI_EDGE_TTS_URL", "http://localhost:5050") # Default URL, allow env override
+OPENAI_EDGE_TTS_URL = os.getenv("OPENAI_EDGE_TTS_URL", "http://localhost:5050")  # Default URL, allow env override
 API_KEY = ""  # Initially empty, to be set via the UI
 
-# Data model for the request body
+
 class TTSRequest(BaseModel):
     model: str = "tts-1"
     input: str
     voice: str = "alloy"
+
+
+def clean_text(text: str) -> str:
+    """Removes special characters from the input text."""
+    # Keep only alphanumeric characters, spaces, periods, commas, question marks, and exclamation points.
+    cleaned_text = re.sub(r"[^a-zA-Z0-9\s.,?!]", "", text)
+    return cleaned_text.strip()  # Remove leading/trailing whitespace
+
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
@@ -35,14 +44,16 @@ async def set_api_key(api_key: str = Form(...)):
     return {"message": "API Key set successfully"}
 
 
-
 @app.post("/generate_speech")
 async def generate_speech(request: Request, text: str = Form(...), voice: str = Form(...)):
     """Generates speech using the OpenAI-edge-tts service."""
     if not API_KEY:
         raise HTTPException(status_code=400, detail="API Key is not set.  Please set it on the main page.")
 
-    tts_request_data = TTSRequest(input=text, voice=voice).dict()
+    # Clean the input text
+    cleaned_text = clean_text(text)
+
+    tts_request_data = TTSRequest(input=cleaned_text, voice=voice).dict()
 
     try:
         async with httpx.AsyncClient() as client:
@@ -55,7 +66,7 @@ async def generate_speech(request: Request, text: str = Form(...), voice: str = 
             response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
 
             # Save the audio to a temporary file.  Important: Use a unique filename
-            temp_file_path = f"static/speech_{hash(text + voice)}.mp3"
+            temp_file_path = f"static/speech_{hash(cleaned_text + voice)}.mp3"
             with open(temp_file_path, "wb") as f:
                 f.write(response.content)
 
