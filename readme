@@ -3,6 +3,9 @@
 Reference: https://github.com/travisvn/openai-edge-tts  
 
 To run:
-```
+```sh
 uvicorn main:app --reload
 ```
+
+  
+![Screenshot](static/screenshot.png)
