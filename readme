@@ -1,3 +1,8 @@
 #FastAPI Web UI for OpenAI-Edge-TTS
 
-Reference: https://github.com/travisvn/openai-edge-tts
+Reference: https://github.com/travisvn/openai-edge-tts  
+
+To run:
+```
+uvicorn main:app --reload
+```
