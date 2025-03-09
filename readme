@@ -7,5 +7,9 @@ To run:
 uvicorn main:app --reload
 ```
 
+To build:
+```sh
+podman build -f Dockerfile .
+```
   
 ![Screenshot](static/screenshot.png)
