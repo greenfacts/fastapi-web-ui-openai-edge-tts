@@ -3,7 +3,7 @@
 Reference: https://github.com/travisvn/openai-edge-tts  
 
 To run:  
-```bash
+```sh
 uvicorn main:app --reload
 ```
 
