@@ -1,3 +1,4 @@
+import logging  # Import the logging module
 import os
 import re  # Import the regular expression module
 from typing import Optional
@@ -15,9 +16,13 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 OPENAI_EDGE_TTS_URL = os.getenv(
-    "OPENAI_EDGE_TTS_URL", "http://localhost:5050"
-)  # Default URL, allow env override
+    "OPENAI_EDGE_TTS_URL", "http://openai-edge-tts:5050"
+)  # Use the Docker service name
 API_KEY = "your_api_key_here"  # Default API Key
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class TTSRequest(BaseModel):
@@ -62,8 +67,10 @@ async def generate_speech(
 
     try:
         async with httpx.AsyncClient() as client:
+            url = f"{OPENAI_EDGE_TTS_URL}/v1/audio/speech"
+            logger.info(f"Sending request to URL: {url}")
             response = await client.post(
-                f"{OPENAI_EDGE_TTS_URL}/v1/audio/speech",
+                url,
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {API_KEY}",
@@ -82,12 +89,15 @@ async def generate_speech(
             return {"audio_url": f"/static/{os.path.basename(temp_file_path)}"}
 
     except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error occurred: {e.response.status_code} - {str(e)}")
         raise HTTPException(status_code=e.response.status_code, detail=str(e))
     except httpx.RequestError as e:
+        logger.error(f"Request error occurred: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Error connecting to TTS service: {str(e)}"
         )
     except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"An unexpected error occurred: {str(e)}"
         )

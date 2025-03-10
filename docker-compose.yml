@@ -8,3 +8,8 @@ services:
     volumes:
       - .:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  openai-edge-tts:
+    image: docker.io/travisvn/openai-edge-tts
+    ports:
+      - "5050:5050"  # Adjust the port mapping to 5050

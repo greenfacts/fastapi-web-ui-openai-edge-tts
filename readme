@@ -9,7 +9,12 @@ uvicorn main:app --reload
 
 To build:
 ```sh
-podman build -f Dockerfile .
+docker build -f Dockerfile .
+```
+
+To build and run using Docker Compose:
+```sh
+docker-compose up --build
 ```
   
 ![Screenshot](static/screenshot.png)
