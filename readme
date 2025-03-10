@@ -3,9 +3,9 @@
 Reference: https://github.com/travisvn/openai-edge-tts  
 
 To run:
-```sh
+'''sh
 uvicorn main:app --reload
-```
+'''
 
 To build:
 ```sh
