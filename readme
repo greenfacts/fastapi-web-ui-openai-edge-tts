@@ -7,11 +7,6 @@ To run:
 uvicorn main:app --reload
 ```
 
-To build:
-```sh
-docker build -f Dockerfile .
-```
-
 To build and run using Docker Compose:
 ```sh
 docker-compose up --build
