@@ -3,17 +3,17 @@
 Reference: https://github.com/travisvn/openai-edge-tts  
 
 To run:
-```sh
+```
 uvicorn main:app --reload
 ```
 
 To build:
-```sh
+```
 docker build -f Dockerfile .
 ```
 
 To build and run using Docker Compose:
-```sh
+```
 docker-compose up --build
 ```
 
